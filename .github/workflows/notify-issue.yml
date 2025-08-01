@@ -1,8 +1,7 @@
 name: notify-issue
 
 on:
-  issues:
-    types: [opened]
+  workflow_call:
 
 jobs:
   issue:
