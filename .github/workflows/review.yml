@@ -1,8 +1,6 @@
 name: AI PR Review
 on:
-  pull_request:
-    types: [opened, reopened, ready_for_review]
-  issue_comment:
+  workflow_call:
 jobs:
   pr_agent_job:
     if: ${{ github.event.sender.type != 'Bot' }}
