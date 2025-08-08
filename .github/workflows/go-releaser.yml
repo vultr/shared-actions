@@ -1,9 +1,12 @@
 name: "Automatic Releaser"
 
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      go_version:
+        description: 'GoLang Version to use'
+        required: true
+        type: string    
 
 permissions:
   contents: write
@@ -53,7 +56,7 @@ jobs:
         name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: ${{ inputs.go_version }}
       -
         name: Docker Login
         env:
