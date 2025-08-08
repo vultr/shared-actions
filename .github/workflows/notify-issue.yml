@@ -1,7 +1,15 @@
 name: notify-issue
 
-on:
   workflow_call:
+    inputs:
+      repository:
+        description: 'Github Repository'
+        required: true
+        type: string    
+      issue_number:
+        description: 'Issue Number'
+        required: true
+        type: string 
 
 jobs:
   issue:
@@ -13,4 +21,4 @@ jobs:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
           MATTERMOST_USERNAME: ${{ secrets.MATTERMOST_USERNAME}}
           MATTERMOST_ICON_URL: ${{ secrets.MATTERMOST_ICON }}
-          TEXT: "${{ github.repository }}: New Issue https://github.com/${{ github.repository }}/issues/${{ github.event.issue.number }}"
+          TEXT: "${{ inputs.repository }}: New Issue https://github.com/${{ inputs.repository }}/issues/${{ inputs.issue_number }}"
