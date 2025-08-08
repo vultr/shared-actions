@@ -1,5 +1,6 @@
 name: notify-issue
 
+on:
   workflow_call:
     inputs:
       repository:
