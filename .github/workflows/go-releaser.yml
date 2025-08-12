@@ -6,7 +6,33 @@ on:
       go_version:
         description: 'GoLang Version to use'
         required: true
-        type: string    
+        type: string
+      vcr_endpoint:
+        description: 'Endpoint for VCR'
+        required: false
+        type: string
+    secrets:
+      gh_token:
+        required: true
+        description: 'Github Token'
+      docker_user:
+        required: false
+        description: 'Dockerhub Username'
+      docker_pass:
+        required: false
+        description: 'Dockerhub Password'
+      vcr_user:
+        required: false
+        description: 'VCR Username'
+      vcr_pass:
+        required: false
+        description: 'VCR Password'
+      s3_key:
+        required: false
+        description: 'S3 Access Key'
+      s3_secret:
+        required: false
+        description: 'S3 Secret Key'
 
 permissions:
   contents: write
@@ -47,40 +73,44 @@ jobs:
     runs-on: ubuntu-latest
     needs: create-tag
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      -
-        name: Set up Go
+
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go_version }}
-      -
-        name: Docker Login
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker Login
+        if: secrets.docker_pass != ''
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-      -
-        name: Run GoReleaser
+          echo "${{ secrets.docker_pass }}" | docker login --username "${{ secrets.docker_user }}" --password-stdin
+
+      - name: VCR Docker Login
+        if: secrets.vcr_pass != ''
+        run: |
+          echo "${{ secrets.vcr_pass }}" | docker login ${{ inputs.vcr_endpoint }} --username "${{ secrets.vcr_user }}" --password-stdin
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: latest
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.VULTRBOT_TOKEN }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      -
-        name: Clear
+          GITHUB_TOKEN: ${{ secrets.gh_token }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.s3_key || '' }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.s3_secret || '' }}
+
+      - name: Clear
         if: always()
         run: |
           rm -f ${HOME}/.docker/config.json
-
   release:
     runs-on: ubuntu-latest
     needs: ["goreleaser", "create-tag"]
