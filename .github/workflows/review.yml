@@ -20,7 +20,6 @@ jobs:
           OPENAI__API_BASE: ${{ secrets.OPENAI__API_BASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           github_action_config.auto_review: "true"
-          github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
           github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "review_requested"]'
           config.model: "openai/kimi-k2-instruct"
