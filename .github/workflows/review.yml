@@ -22,5 +22,5 @@ jobs:
           github_action_config.auto_describe: "false"
           github_action_config.auto_improve: "true"
           github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "review_requested"]'
-          config.model: "openai/gpt-oss-120b"
+          config.model: "zai-org/GLM-5-FP8"
           config.custom_model_max_tokens: 100000
