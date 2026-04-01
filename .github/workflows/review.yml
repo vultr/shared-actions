@@ -4,7 +4,6 @@ on:
 jobs:
   pr_agent_job:
     if: ${{ github.event.sender.type != 'Bot' }}
-    runs-on: arc-runner-set
     permissions:
       issues: write
       pull-requests: write
