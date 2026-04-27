@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: PR Agent action step
         id: pragent
-        uses: qodo-ai/pr-agent@0b0c175f6a0ae73f75bfb12a0eecb440a216a891
+        uses: the-pr-agent/pr-agent@0b0c175f6a0ae73f75bfb12a0eecb440a216a891
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
