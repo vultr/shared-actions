@@ -1,19 +1,45 @@
 name: AI PR Review
 on:
   workflow_call:
+    secrets:
+      OPENAI_KEY:
+        required: true
+      OPENAI__API_BASE:
+        required: true
 
-# Emergency containment: PR Agent evaluated attacker-controlled review settings
-# with credentials in its environment. Keep this reusable workflow as a disabled
-# compatibility entry point for callers. Do not restore the agent until the
-# template/configuration execution path is fixed and exposed keys are rotated.
+# Only automatic PR events may start the agent. Do not add comment or review
+# events here: comment commands previously allowed attacker-controlled settings
+# to reach executable prompt templates. Enforce this centrally even when callers
+# still subscribe to issue_comment.
 permissions: {}
 
 jobs:
   pr_agent_job:
-    name: AI review disabled for security remediation
-    if: ${{ false }}
+    name: Automatic PR review (comment commands disabled)
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request != null &&
+      contains(fromJSON('["opened", "reopened", "ready_for_review"]'), github.event.action) &&
+      github.event.sender.type != 'Bot'
     runs-on: ubuntu-latest
-    permissions: {}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Review disabled
-        run: echo 'AI review is disabled pending security remediation.'
+      # Deliberately follow upstream's rolling GitHub Action image. The event
+      # gate above is enforced by GitHub before this third-party image starts.
+      - name: Review pull request
+        uses: docker://pragent/pr-agent:github_action
+        env:
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI__API_BASE: ${{ secrets.OPENAI__API_BASE }}
+          GITHUB_TOKEN: ${{ github.token }}
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "false"
+          github_action_config.auto_improve: "false"
+          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review"]'
+          github_action_config.handle_push_trigger: "false"
+          config.model: "openai/zai-org/GLM-5-FP8"
+          config.custom_model_max_tokens: 100000
