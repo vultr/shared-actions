@@ -1,27 +1,19 @@
 name: AI PR Review
 on:
   workflow_call:
+
+# Emergency containment: PR Agent evaluated attacker-controlled review settings
+# with credentials in its environment. Keep this reusable workflow as a disabled
+# compatibility entry point for callers. Do not restore the agent until the
+# template/configuration execution path is fixed and exposed keys are rotated.
+permissions: {}
+
 jobs:
   pr_agent_job:
+    name: AI review disabled for security remediation
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    if: ${{ github.event.sender.type != 'Bot' }}
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: read
-    name: Run pr agent on every pull request, respond to user comments
+    permissions: {}
     steps:
-      - name: PR Agent action step
-        id: pragent
-        uses: the-pr-agent/pr-agent@0b0c175f6a0ae73f75bfb12a0eecb440a216a891
-        env:
-          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
-          OPENAI__API_BASE: ${{ secrets.OPENAI__API_BASE }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          github_action_config.auto_review: "true"
-          github_action_config.auto_describe: "false"
-          github_action_config.auto_improve: "true"
-          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "review_requested"]'
-          config.model: "openai/zai-org/GLM-5-FP8"
-          config.custom_model_max_tokens: 100000
+      - name: Review disabled
+        run: echo 'AI review is disabled pending security remediation.'
